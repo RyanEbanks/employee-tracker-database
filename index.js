@@ -23,6 +23,8 @@ const db = mysql.createConnection(
 );
 
 let nameArray = [];
+let roleArray = [];
+
 
 db.query(`SELECT CONCAT (first_name, " ", last_name) AS name FROM employee`, (err, result) => {
     try {
@@ -34,6 +36,19 @@ db.query(`SELECT CONCAT (first_name, " ", last_name) AS name FROM employee`, (er
         console.log(err);
     }
 });
+
+db.query(`SELECT title FROM employeeRole`, (err, result) => {
+    try {
+        if(err) throw err;
+        for(let i = 0; i <result.length; i++) {
+            roleArray.push(result[i].title);
+        }
+    } catch(err) {
+        console.log(err);
+    }
+});
+
+
 
 //Questions for bonus marks not added yet
 
@@ -51,14 +66,6 @@ function  initialize() {
     });
    
 }
-
-// function getTable() {
-//     db.query(`SELECT first_name, last_name FROM employee`, function (err, results) {
-//       if (err) throw err;
-//       console.table(results);
-//     });
-//   }
-  
 
 function sqlStatements(choice) {
     if (choice.startingChoices === "View all departments") {
@@ -128,7 +135,6 @@ function sqlStatements(choice) {
             initialize();
         });
     } else if (choice.startingChoices === "Add an employee") {
-        // getTable();
         inquirer.prompt([
             {
                 type: "input",
@@ -166,41 +172,31 @@ function sqlStatements(choice) {
         inquirer.prompt([
             //Set this up so that add a role starts here
             {
-                type: "input",
-                name: "updateByFName",
-                message: "What is the name of the role? "
+                type: "rawlist",
+                name: "updateRole",
+                message: "Which employee's role do you want to update? ",
+                choices: nameArray
             },
             {
-                type: "input",
-                name: "updateByLName",
-                message: "What is the salary of the role? "
-            },
-            {
-                type: "input",
-                name: "newRole",
-                message: "What department does the role belong to? "
-            },
-        ]).then((response) => {
-            let roleArray = [];
-
-            db.query(`SELECT department_name FROM employee_db.employeeRole`, (error, results) => {
-                if (error) {
-                  throw error;
-                }
-                const roleArray = results.map(result => result.department_name);
-                console.log(roleArray);
-              });
-              
-
-            if(roleArray.includes(response.newRole)) {
-                idInput = indexOf(response.newRole) + 1;
-                db.query(`UPDATE employee_db.employee SET role_id = ${idInput} WHERE first_name= ${response.updateByFName} AND last_name= ${response.updateByLName}`);
-                initialize();
+                type: "rawlist",
+                name: "updateByName",
+                message: "Which role do you want to assign to the selected employee? ",
+                choices: roleArray
             }
+        ]).then((response) => {
+            let splitText = response.updateRole;
+            const mySplitArray = splitText.split(" ");
+
+            db.query(
+            `UPDATE employee_db.employeeRole 
+            SET title = '${response.roleArray}' 
+            WHERE id = (SELECT role_id FROM employee WHERE first_name = '${mySplitArray[0]}' AND last_name = '${mySplitArray[1]}')`);
+              console.table("First Name: ", mySplitArray[0])
+              console.table("Last Name: ", mySplitArray[1])
+              initialize();
         });
     }
 }
 
   
-
 initialize();

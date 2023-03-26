@@ -18,9 +18,9 @@ This command-line application manages a company's employee database, using Node.
 
 ## Installation
 ```md
-Download all the files here
-Install MySQL Workbench
-Install node.js
+1. Download all the files here
+2. Install MySQL Workbench
+3. Install node.js
 ```
 
 ## Usage
@@ -34,10 +34,10 @@ N/A
 
 ## Tests
 ```md
-Open your own instance of MySQL Workbench
-Switch the password on line 20 to match your server password 
-Run the SQL schema and seeds in the db folder in Workbench
-Then either test the query sheet or run the node instance.
+1. Open your own instance of MySQL Workbench
+2. Switch the password on line 20 to match your server password 
+3. Run the SQL schema and seeds in the db folder in Workbench
+4. Then either test the query sheet or run the node instance.
 ```
 
 ## Questions

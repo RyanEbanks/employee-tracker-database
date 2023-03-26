@@ -1,36 +1,66 @@
 /*View All Departments*/
 SELECT * FROM department;
 
+/*Adding an Employee Verified*/
+INSERT INTO employee(first_name, last_name, role_id, manager_id)
+SELECT "Joey", "Wu", employeeRole.id, employee.id
+FROM employeeRole, employee
+WHERE employeeRole.title = "Sales Lead"
+AND CONCAT (employee.first_name, " ", employee.last_name) = "Matthew Brown";
+
+/*View All Employees Verified*/
+SELECT employee.id, employee.first_name, employee.last_name, 
+       employeeRole.title, department.department_name, employeeRole.salary,
+       CONCAT(manager.first_name, ' ', manager.last_name) AS manager_name
+FROM employee
+JOIN employeeRole ON employee.role_id=employeeRole.id
+JOIN department ON employeeRole.department_id= department.id
+LEFT JOIN employee AS manager ON employee.manager_id = manager.id;
+
+
+/*Adding a department*/
+INSERT INTO department(department_name) VALUES("Chemist");
+
+/*Adding a Role*/
+INSERT INTO employee_db.employeeRole (title, salary, department_id)
+VALUES ('Chemical Engineer', 200000, (SELECT id FROM employee_db.department WHERE department_name = 'Chemist'));
+
 /*View All Roles*/
 SELECT employeeRole.id, employeeRole.title, department.department_name, employeeRole.salary 
 FROM employeeRole
-JOIN employee_db.department ON employee_db.department.id=employee_db.employeeRole.id;
+JOIN department ON department.id=employeeRole.department_id;
 
-/*View All Employees*/
-/*We join the department name from department table on the id from department table which will be equal to the foreign key*/
-/*We give the foreign key values to match the id field from department, so 1 is Sales department and salesperson and saleslead should have a dep_id of 1*/
-SELECT employee.id, employee.first_name, employee.last_name, employeeRole.title, department.department_name, employeeRole.salary, employee.first_name WHERE employee.manager_id IS NOT NULL FROM employeeRole
-JOIN department ON department.id = employeeRole.department_id
+/*Update an Employee*/
+UPDATE employee
+SET role_id = (SELECT department_id FROM employeeRole WHERE title = 'Lead Engineer' LIMIT 1)
+WHERE first_name = 'Matthew' AND last_name = 'Brown';
 
-
-SELECT employee.id, employee.first_name, employee.last_name, employeeRole.title, department.department_name, employeeRole.salary
-FROM employeeRole
-JOIN department ON department.id = employeeRole.department_id 
-JOIN employee ON employee.role_id = employeeRole.id
-WHERE employee.manager_id IS NOT NULL;
+UPDATE employeeRole 
+SET title = 'Lead Engineer', 
+    salary = (SELECT salary FROM (SELECT * FROM employeeRole) AS er WHERE title = 'Lead Engineer' LIMIT 1), 
+    department_id = (SELECT department_id FROM (SELECT * FROM employeeRole) AS er WHERE title = 'Lead Engineer' LIMIT 1)
+WHERE id = (SELECT role_id FROM employee WHERE first_name = 'Matthew' AND last_name = 'Brown');
 
 
-/*Add a Department*/
-/*Would probably need to have something to reference the index# in js. Index# would match the auto incremented id#*/
-INSERT INTO department(department_name) VALUES("Would need the string of whatever entered here");
+/*View All Employees by Manager*/
+SELECT e.first_name, e.last_name, CONCAT(m.first_name, ' ', m.last_name) AS manager_name
+FROM employee e
+LEFT JOIN employee m ON e.manager_id = m.id
+WHERE e.manager_id IS NOT NULL;
 
-/*Add an Employee*/
-INSERT INTO employee_db.employee(first_name, last_name) VALUES("place values from js here", "Same for this one");
-/*Find a way to use the managers id, add it in the insert and have the name appear*/
+/*View Employees by Department*/
+SELECT e.first_name, e.last_name, d.department_name
+FROM employee e
+JOIN employeeRole er ON e.role_id = er.id
+JOIN department d ON er.department_id = d.id
+ORDER BY d.department_name;
 
-/*Add a Role*/
-/*Based on selection it will generate the correct stuff eg if they choose sales person then it will set the price to 80000*/
-INSERT INTO employee_db.employeeRole(title, salary) VALUES ("NEED js value here", "Need js value here");
 
-/*Update an employee role*/
-UPDATE employee_db.employee SET role_id = 1 WHERE first_name= info AND last_name=  info;
+/*View Employees by department*/
+SELECT e.first_name, e.last_name, d.department_name
+FROM employee e
+JOIN employeeRole er ON e.role_id = er.id
+JOIN department d ON er.department_id = d.id
+ORDER BY d.department_name
+
+

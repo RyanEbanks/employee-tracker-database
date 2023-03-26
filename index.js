@@ -209,20 +209,30 @@ function sqlStatements(choice) {
                 LEFT JOIN employee m ON e.manager_id = m.id
                 WHERE e.manager_id IS NOT NULL`, function(err, results) {
                     console.table("\n", results);
+                    initialize();
                 });
                 
-            initialize();
     } else if (choice.startingChoices === "View employees by department") {
             db.query(
                 `SELECT e.first_name, e.last_name, d.department_name
                 FROM employee e
                 JOIN employeeRole er ON e.role_id = er.id
                 JOIN department d ON er.department_id = d.id
-                ORDER BY d.department_name;`, function(err, results) {
+                ORDER BY d.department_name`, function(err, results) {
                     console.table("\n", results);
+                    initialize();
                 });
                 
-            initialize();
     }
 }
-initialize();
+
+function welcome() {
+    console.table(`
+---------------------------
+| WELCOME TO THE EMPLOYEE |
+|    TRACKER DATABASE     |
+--------------------------- `);
+    return initialize();
+}
+
+welcome();

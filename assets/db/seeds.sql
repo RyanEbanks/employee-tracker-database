@@ -17,16 +17,16 @@ VALUES
 ("Legal Team Lead", 250000, 4);
 
 /*Need to add role and manager id to get the correct references to view all roles*/
-INSERT INTO employee_db.employee(first_name, last_name)
+INSERT INTO employee_db.employee(first_name, last_name, role_id)
 VALUES
-("Matthew", "Brown"),
-("Mark", "White"),
-("Luke", "Reid"),
-("John", "Johnson"),
-("Abraham", "Davis"),
-("Noah", "Garcia"),
-("Adam", "Miller"),
-("David", "Jones");
+("Matthew", "Brown", 1),
+("Mark", "White", 1),
+("Luke", "Reid", 2),
+("John", "Johnson", 2),
+("Abraham", "Davis", 3),
+("Noah", "Garcia", 3),
+("Adam", "Miller", 4),
+("David", "Jones", 4);
 
 
 

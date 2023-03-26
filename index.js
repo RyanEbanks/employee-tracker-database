@@ -49,7 +49,6 @@ db.query(`SELECT title FROM employeeRole`, (err, result) => {
 });
 
 
-
 //Questions for bonus marks not added yet
 
 function  initialize() {
@@ -58,7 +57,7 @@ function  initialize() {
             type: "rawlist",
             name: "startingChoices",
             message: "Choose an option: ",
-            choices: ["View all departments", "View all roles", "View all employees", "Add a department", "Add a role", "Add an employee", "Update an employee role"]
+            choices: ["View all departments", "View all roles", "View all employees", "Add a department", "Add a role", "Add an employee", "Update an employee role", "View employees by manager", "View employees by department"]
         }
 
     ]).then((response) => {
@@ -188,15 +187,42 @@ function sqlStatements(choice) {
             const mySplitArray = splitText.split(" ");
 
             db.query(
-            `UPDATE employee_db.employeeRole 
-            SET title = '${response.roleArray}' 
-            WHERE id = (SELECT role_id FROM employee WHERE first_name = '${mySplitArray[0]}' AND last_name = '${mySplitArray[1]}')`);
-              console.table("First Name: ", mySplitArray[0])
-              console.table("Last Name: ", mySplitArray[1])
-              initialize();
+            `UPDATE employee
+            SET role_id = (SELECT department_id FROM employeeRole WHERE title = 'Lead Engineer' LIMIT 1)
+            WHERE first_name = '${mySplitArray[0]}' AND last_name = '${mySplitArray[1]}'`);
+            console.table("First Name: ", mySplitArray[0])
+            console.table("Last Name: ", mySplitArray[1])
+            
+            db.query(
+                `UPDATE employeeRole 
+                SET title = '${response.updateByName}', 
+                salary = (SELECT salary FROM (SELECT * FROM employeeRole) AS er WHERE title = '${response.updateByName}' LIMIT 1), 
+                department_id = (SELECT department_id FROM (SELECT * FROM employeeRole) AS er WHERE title = '${response.updateByName}' LIMIT 1)
+                WHERE id = (SELECT role_id FROM employee WHERE first_name = '${mySplitArray[0]}' AND last_name = '${mySplitArray[1]}');`)
+
+            initialize();
         });
+    }  else if (choice.startingChoices === "View employees by manager") {
+            db.query(
+                `SELECT e.first_name, e.last_name, CONCAT(m.first_name, ' ', m.last_name) AS manager_name
+                FROM employee e
+                LEFT JOIN employee m ON e.manager_id = m.id
+                WHERE e.manager_id IS NOT NULL`, function(err, results) {
+                    console.table("\n", results);
+                });
+                
+            initialize();
+    } else if (choice.startingChoices === "View employees by department") {
+            db.query(
+                `SELECT e.first_name, e.last_name, d.department_name
+                FROM employee e
+                JOIN employeeRole er ON e.role_id = er.id
+                JOIN department d ON er.department_id = d.id
+                ORDER BY d.department_name;`, function(err, results) {
+                    console.table("\n", results);
+                });
+                
+            initialize();
     }
 }
-
-  
 initialize();

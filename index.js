@@ -1,5 +1,6 @@
 const inquirer = require("inquirer");
 const fs = require("fs");
+// importing pathing for to make a secure password
 const path = require("path");
 //Importing mysql
 const mysql = require("mysql2");
@@ -15,6 +16,7 @@ const db = mysql.createConnection(
     {
         host: 'localhost',
         user: 'root',
+        //Password is stored in config file which will not be pushed to github
         password: `${password}`,
         database: 'employee_db'
     },
@@ -22,10 +24,11 @@ const db = mysql.createConnection(
     console.log('Connected to the database')
 );
 
+//Declaring arrays to store information from SQL
 let nameArray = [];
 let roleArray = [];
 
-
+//Making first name and last name as a full name then pushing it to an array
 db.query(`SELECT CONCAT (first_name, " ", last_name) AS name FROM employee`, (err, result) => {
     try {
         if(err) throw err;
@@ -37,6 +40,7 @@ db.query(`SELECT CONCAT (first_name, " ", last_name) AS name FROM employee`, (er
     }
 });
 
+//Pushing all the titles to an array
 db.query(`SELECT title FROM employeeRole`, (err, result) => {
     try {
         if(err) throw err;
@@ -49,8 +53,7 @@ db.query(`SELECT title FROM employeeRole`, (err, result) => {
 });
 
 
-//Questions for bonus marks not added yet
-
+//The starting question
 function  initialize() {
     inquirer.prompt([
         {
@@ -66,6 +69,7 @@ function  initialize() {
    
 }
 
+//Function to run based on the initialize functions choice
 function sqlStatements(choice) {
     if (choice.startingChoices === "View all departments") {
         db.query(`SELECT * FROM department`, function (err, results) {
@@ -108,7 +112,6 @@ function sqlStatements(choice) {
 
     if (choice.startingChoices === "Add a role") {
         inquirer.prompt([
-            //Set this up so that add a role starts here
             {
                 type: "input",
                 name: "addARole",
@@ -119,7 +122,6 @@ function sqlStatements(choice) {
                 name: "roleSalary",
                 message: "What is the salary of the role? "
             },
-            //figure out a way to use department id to get the department
             {
                 type: "input",
                 name: "departmentRole",
@@ -169,23 +171,27 @@ function sqlStatements(choice) {
         });
     } else if (choice.startingChoices === "Update an employee role") {
         inquirer.prompt([
-            //Set this up so that add a role starts here
             {
                 type: "rawlist",
                 name: "updateRole",
                 message: "Which employee's role do you want to update? ",
+                //Using the array of names as the choices
                 choices: nameArray
             },
             {
                 type: "rawlist",
                 name: "updateByName",
                 message: "Which role do you want to assign to the selected employee? ",
+                //using the array of titles as the choices
                 choices: roleArray
             }
         ]).then((response) => {
+            //Getting the response from the name array and splitting them into first and last name
             let splitText = response.updateRole;
+            //Splitting by space
             const mySplitArray = splitText.split(" ");
 
+            //Index 0 will hold the first name and index 1 will hold the last name. Using that to add to the query
             db.query(
             `UPDATE employee
             SET role_id = (SELECT department_id FROM employeeRole WHERE title = 'Lead Engineer' LIMIT 1)
@@ -226,6 +232,7 @@ function sqlStatements(choice) {
     }
 }
 
+//Function to show display message when the program first starts
 function welcome() {
     console.table(`
 ---------------------------

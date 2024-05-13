@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Video Link
-[Click Here!](https://www.youtube.com/watch?v=tbTcaWdBbMU)
+[Click Here!](https://youtu.be/Pgpso2K1-ao)
 
 ## Description
 This command-line application manages a company's employee database, using Node.js, Inquirer and MySQL. 
